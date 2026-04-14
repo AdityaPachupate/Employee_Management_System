@@ -361,3 +361,24 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+project description
+
+# Modern Additions
+.vscode/
+.idea/
+*.swp
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local secrets and configuration
+.env
+.env*
+!.env.example
+*.local.json
+appsettings.Local.json
+
+# Build output folders - ENSURE tracked files are removed
+[Bb]in/
+[Oo]bj/
