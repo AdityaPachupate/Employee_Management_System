@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Riyaj Docs\\Case_Study_App\\EMS\\EmployeeService\\EmployeeService.csproj": {}
+    "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\EmployeeService\\EmployeeService.csproj": {}
   },
   "projects": {
-    "C:\\Riyaj Docs\\Case_Study_App\\EMS\\EmployeeService\\EmployeeService.csproj": {
+    "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\EmployeeService\\EmployeeService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\EmployeeService\\EmployeeService.csproj",
+        "projectUniqueName": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\EmployeeService\\EmployeeService.csproj",
         "projectName": "EmployeeService",
-        "projectPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\EmployeeService\\EmployeeService.csproj",
+        "projectPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\EmployeeService\\EmployeeService.csproj",
         "packagesPath": "C:\\Users\\2467035\\.nuget\\packages\\",
-        "outputPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\EmployeeService\\obj\\",
+        "outputPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\EmployeeService\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

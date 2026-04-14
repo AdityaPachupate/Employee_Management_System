@@ -453,11 +453,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\DepartmentService\\DepartmentService.csproj",
+      "projectUniqueName": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\DepartmentService\\DepartmentService.csproj",
       "projectName": "DepartmentService",
-      "projectPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\DepartmentService\\DepartmentService.csproj",
+      "projectPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\DepartmentService\\DepartmentService.csproj",
       "packagesPath": "C:\\Users\\2467035\\.nuget\\packages\\",
-      "outputPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\DepartmentService\\obj\\",
+      "outputPath": "C:\\Riyaj Docs\\Case_Study_App\\EMS\\Employee_Management_System\\DepartmentService\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
