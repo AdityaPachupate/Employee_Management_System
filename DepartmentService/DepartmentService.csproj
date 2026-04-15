@@ -7,7 +7,35 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+    <PackageReference Include="Mapster" Version="10.0.7" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.*" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Application\" />
+    <Folder Include="Application\Common\" />
+    <Folder Include="Application\Common\Behaviors\" />
+    <Folder Include="Application\Common\Exceptions\" />
+    <Folder Include="Application\Common\Interfaces\" />
+    <Folder Include="Application\DTOs\" />
+    <Folder Include="Application\Features\" />
+    <Folder Include="Application\Features\CreateDepartment\" />
+    <Folder Include="Application\Features\DeleteDepartment\" />
+    <Folder Include="Application\Features\GetAllDepartments\" />
+    <Folder Include="Application\Features\GetDepartmentById\" />
+    <Folder Include="Application\Features\UpdateDepartment\" />
+    <Folder Include="Application\Mappings\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Infrastructure\Messaging\" />
+    <Folder Include="Infrastructure\Persistence\Repositories\" />
   </ItemGroup>
 
 </Project>
