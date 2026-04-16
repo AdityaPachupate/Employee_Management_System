@@ -1,4 +1,12 @@
+using MediatR;
+using FluentValidation;
+using Mapster;
+using MapsterMapper;
+using System.Reflection;
+//using DepartmentService.Application.Common.Behaviors;
+using DepartmentService.Application.Common.Interfaces;
 using DepartmentService.Infrastructure.Persistence;
+using DepartmentService.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +15,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<DepartmentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// MediatR + Pipeline Behaviors
+//builder.Services.AddMediatR(cfg => {
+//    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+//    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
+//});
+
+// FluentValidation
+//builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+// Mapster Configuration
+var config = TypeAdapterConfig.GlobalSettings;
+config.Scan(Assembly.GetExecutingAssembly());
+//builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, Mapper>();
+
+// Repositories
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
