@@ -23,7 +23,7 @@ namespace Shared.Logging
             if (string.IsNullOrWhiteSpace(log.ServiceName)) 
                 log.ServiceName = _serviceName;
 
-            log.Timestamp = log.Timestamp == default ? DateTime.UtcNow : log.Timestamp;
+            log.Timestamp = log.Timestamp == default ? DateTime.Now : log.Timestamp;
 
             // Use existing correlation ID or create a new one for this request
             log.CorrelationId ??= _httpContextAccessor.HttpContext?.Request.Headers["X-Correlation-Id"].ToString();
