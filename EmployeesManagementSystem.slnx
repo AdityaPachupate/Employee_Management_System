@@ -4,5 +4,6 @@
   <Project Path="DepartmentService/DepartmentService.csproj" />
   <Project Path="EmployeeService/EmployeeService.csproj" />
   <Project Path="LoggingService/LoggingService.csproj" />
+  <Project Path="LoggingService/Tests/LoggingService.Tests.csproj" />
   <Project Path="Shared/Shared.csproj" />
 </Solution>

@@ -16,7 +16,6 @@ public class DepartmentDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure Department entity
         modelBuilder.Entity<Department>(entity =>
         {
             entity.HasKey(e => e.DepartmentId);
@@ -25,17 +24,15 @@ public class DepartmentDbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
-        // Configure DepartmentStats entity
         modelBuilder.Entity<DepartmentStats>(entity =>
         {
             entity.HasKey(e => e.DepartmentId);
-            
+
             entity.Property(e => e.LastUpdated)
                 .HasDefaultValueSql("SYSUTCDATETIME()");
 
-            // 1-to-1 relationship with Department
             entity.HasOne(ds => ds.Department)
-                .WithOne()
+                .WithOne(d => d.Stats)
                 .HasForeignKey<DepartmentStats>(ds => ds.DepartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
