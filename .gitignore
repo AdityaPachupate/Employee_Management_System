@@ -382,3 +382,4 @@ appsettings.Local.json
 # Build output folders - ENSURE tracked files are removed
 [Bb]in/
 [Oo]bj/
+CENTRALIZED_LOGGING_GUIDE.md

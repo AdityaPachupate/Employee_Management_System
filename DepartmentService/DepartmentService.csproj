@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -38,8 +38,6 @@
     <Folder Include="Infrastructure\Persistence\Repositories\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LoggingService\LoggingService.csproj" />
-    <ProjectReference Include="..\LoggingService\Tests\LoggingService.Tests.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 

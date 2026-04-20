@@ -25,8 +25,8 @@ namespace Shared.Logging
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
-        //Log everything except LogLevel.None
-        public bool IsEnabled(LogLevel level) => level != LogLevel.None;
+        // Only log Warnings and Errors automatically to prevent database bloat
+        public bool IsEnabled(LogLevel level) => level >= LogLevel.Warning;
 
         public void Log<TState>(LogLevel level, EventId id, TState state, Exception? ex, Func<TState, Exception?, string> fmt)
         {
@@ -40,7 +40,7 @@ namespace Shared.Logging
                 Exception = ex?.ToString(),
                 CorrelationId = _access.HttpContext?.Request.Headers["X-Correlation-Id"].ToString(),
                 UserName = _access.HttpContext?.User?.Identity?.Name,
-                Timestamp = DateTime.UtcNow
+                Timestamp = DateTime.Now
             };
 
             // Send in the background without blocking the app

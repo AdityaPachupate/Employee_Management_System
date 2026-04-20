@@ -4,6 +4,7 @@ using DepartmentService.Domain;
 using DepartmentService.Domain.Entities;
 using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Logging;
 
 namespace DepartmentService.Controllers;
 
@@ -13,9 +14,9 @@ public class DepartmentsController : ControllerBase
 {
     private readonly IDepartmentRepository _repository;
     private readonly IMapper _mapper;
-    private readonly ILogs _logger;
+    private readonly ILogSender _logger;
 
-    public DepartmentsController(IDepartmentRepository repository, IMapper mapper, ILogs logs)
+    public DepartmentsController(IDepartmentRepository repository, IMapper mapper, ILogSender logs)
     {
         _repository = repository;
         _mapper = mapper;
@@ -25,16 +26,7 @@ public class DepartmentsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DepartmentDto>>> GetAll(CancellationToken ct)
     {
-        await _logger.SendLogAsync(new
-        {
-            serviceName = "DepartmentService",
-            correlationId = Guid.NewGuid(),
-            logLevel = "Information",
-            message = "Get Details",
-            exception = "",
-            userName = "",
-            timestamp = new DateTime()
-        });
+        await _logger.SendLogAsync("Fetching all departments");
         var departments = await _repository.GetAllAsync(ct);
         return Ok(_mapper.Map<IEnumerable<DepartmentDto>>(departments));
     }
@@ -42,6 +34,7 @@ public class DepartmentsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<DepartmentDto>> GetById(int id, CancellationToken ct)
     {
+        await _logger.SendLogAsync($"Fetching department with ID: {id}");
         var department = await _repository.GetByIdAsync(id, ct);
         if (department == null) return NotFound();
 
@@ -52,16 +45,7 @@ public class DepartmentsController : ControllerBase
     public async Task<ActionResult<DepartmentDto>> Create(CreateDepartmentDto dto, CancellationToken ct)
     {
         var department = _mapper.Map<Department>(dto);
-        await _logger.SendLogAsync(new
-        {
-            serviceName = "DepartmentService",
-            correlationId = Guid.NewGuid(),
-            logLevel = "Information",
-            message = $"Creating new department: {department.Name}",
-            exception = "",
-            userName = "",
-            timestamp = new DateTime()
-        });
+        await _logger.SendLogAsync($"Creating new department: {department.Name}");
         await _repository.AddAsync(department, ct);
 
 
@@ -74,6 +58,7 @@ public class DepartmentsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateDepartmentDto dto, CancellationToken ct)
     {
+        await _logger.SendLogAsync($"Updating department ID: {id}");
         var department = await _repository.GetByIdAsync(id, ct);
         if (department == null) return NotFound();
 
@@ -87,6 +72,7 @@ public class DepartmentsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
+        await _logger.SendLogAsync($"Deleting department ID: {id}");
         var department = await _repository.GetByIdAsync(id, ct);
         if (department == null) return NotFound();
 

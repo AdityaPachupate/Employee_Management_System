@@ -15,14 +15,12 @@ using DepartmentService.Domain;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddDbContext<DepartmentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddHttpClient<ILogs, Logs>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["LoggingServiceUrl"] ?? "https://localhost:7158");
-});
+// Logging setup (Plug & Play)
+builder.AddCentralLogging("DepartmentService");
+
 // MediatR + Pipeline Behaviors
 //builder.Services.AddMediatR(cfg => {
 //    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
