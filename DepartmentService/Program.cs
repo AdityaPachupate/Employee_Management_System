@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 using Shared.Logging;
 using DepartmentService.Domain;
+using Shared.Messaging;
+using DepartmentService.Infrastructure.Messaging;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +42,23 @@ builder.Services.AddScoped<IMapper, Mapper>();
 // Repositories
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 
+// --- MESSAGING SETUP (MassTransit) ---
+// This registers the 'Bus' that handles sending and receiving messages.
+builder.Services.AddMassTransit(x =>
+{
+    // Register our Consumer so the system knows what to do when a message arrives.
+    x.AddConsumer<EmployeeEventConsumer>();
+
+    // For local development in Visual Studio, we use 'InMemory' mode.
+    // This allows messages to flow WITHOUT needing to install RabbitMQ or Docker!
+    x.UsingInMemory((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -60,3 +79,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
