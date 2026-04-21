@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="ApiGateway/ApiGateway.csproj" />
+  <Project Path="AuthService.Tests/AuthService.Tests.csproj" Id="9987423a-b246-4c69-aca0-75de0a2983c1" />
   <Project Path="AuthService/AuthService.csproj" />
   <Project Path="DepartmentService/DepartmentService.csproj" />
   <Project Path="EmployeeService/EmployeeService.csproj" />
