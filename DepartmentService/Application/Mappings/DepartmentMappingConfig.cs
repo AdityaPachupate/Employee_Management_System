@@ -18,12 +18,12 @@ public class DepartmentMappingConfig : IRegister
         config.NewConfig<CreateDepartmentDto, Department>()
             .Map(dest => dest.CreatedDate, _ => DateTime.UtcNow)
             .Ignore(dest => dest.DepartmentId)
-            .Ignore(dest => dest.Stats);
+            .Ignore(dest => dest.Stats!);
 
         // UpdateDepartmentDto → Department
         config.NewConfig<UpdateDepartmentDto, Department>()
             .Ignore(dest => dest.DepartmentId)
             .Ignore(dest => dest.CreatedDate)
-            .Ignore(dest => dest.Stats);
+            .Ignore(dest => dest.Stats!);
     }
 }

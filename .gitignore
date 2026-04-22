@@ -383,3 +383,4 @@ appsettings.Local.json
 [Bb]in/
 [Oo]bj/
 CENTRALIZED_LOGGING_GUIDE.md
+rabbitMq.txt

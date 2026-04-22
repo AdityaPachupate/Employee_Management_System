@@ -17,13 +17,15 @@ namespace Shared.Logging
             _serviceName = serviceName;
         }
 
-        public async Task SendLogAsync(LogEntryDto log)
+        public Task SendLogAsync(LogEntryDto log)
         {
             // Auto-populate if missing or empty
             if (string.IsNullOrWhiteSpace(log.ServiceName)) 
                 log.ServiceName = _serviceName;
 
-            log.Timestamp = log.Timestamp == default ? DateTime.Now : log.Timestamp;
+            log.Timestamp = log.Timestamp == default 
+                ? TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")) 
+                : log.Timestamp;
 
             // Use existing correlation ID or create a new one for this request
             log.CorrelationId ??= _httpContextAccessor.HttpContext?.Request.Headers["X-Correlation-Id"].ToString();
@@ -50,9 +52,11 @@ namespace Shared.Logging
             {
                 Console.WriteLine($"[LOG FALLBACK] Internal error in Log Sender: {ex.Message}");
             }
+
+            return Task.CompletedTask;
         }
 
-        public async Task SendLogAsync(string message, string logLevel = "Information", string? exception = null)
+        public Task SendLogAsync(string message, string logLevel = "Information", string? exception = null)
         {
             var log = new LogEntryDto
             {
@@ -60,7 +64,7 @@ namespace Shared.Logging
                 LogLevel = logLevel,
                 Exception = exception
             };
-            await SendLogAsync(log);
+            return SendLogAsync(log);
         }
     }
 }

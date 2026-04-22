@@ -10,6 +10,6 @@ namespace Shared.DTOs
         public string Message { get; set; } = string.Empty;
         public string? Exception { get; set; }
         public string? UserName { get; set; }
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public DateTime Timestamp { get; set; }
     }
 }

@@ -1,8 +1,8 @@
-﻿using EmployeeService.Controllers;
+using EmployeeService.Controllers;
 using EmployeeService.Data;
 using EmployeeService.DTOs;
 using EmployeeService.Models;
-using EmployeeService.Services;
+// using EmployeeService.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,16 +30,16 @@ public class EmployeeControllerTests
 
         _dbContext = new EmployeeDbContext(options);
 
-        var publisherMock = new Mock<RabbitMqPublisher>(
-            Mock.Of<IConfiguration>(),
-            Mock.Of<ILogger<RabbitMqPublisher>>());
+        // var publisherMock = new Mock<RabbitMqPublisher>(
+        //     Mock.Of<IConfiguration>(),
+        //     Mock.Of<ILogger<RabbitMqPublisher>>());
 
-        var loggerMock = new Mock<ILogger<EmployeeController>>();
+        // var loggerMock = new Mock<ILogger<EmployeeController>>();
 
-        _controller = new EmployeeController(
-            _dbContext,
-            publisherMock.Object,
-            loggerMock.Object);
+        // _controller = new EmployeeController(
+        //     _dbContext,
+        //     publisherMock.Object,
+        //     loggerMock.Object);
 
         // ✅ ALWAYS set HttpContext
         _controller.ControllerContext = new ControllerContext

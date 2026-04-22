@@ -40,7 +40,7 @@ namespace Shared.Logging
                 Exception = ex?.ToString(),
                 CorrelationId = _access.HttpContext?.Request.Headers["X-Correlation-Id"].ToString(),
                 UserName = _access.HttpContext?.User?.Identity?.Name,
-                Timestamp = DateTime.Now
+                Timestamp = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("India Standard Time"))
             };
 
             // Send in the background without blocking the app

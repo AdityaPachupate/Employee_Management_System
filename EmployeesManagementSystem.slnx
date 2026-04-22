@@ -8,4 +8,5 @@
   <Project Path="LoggingService/LoggingService.csproj" />
   <Project Path="LoggingService/Tests/LoggingService.Tests.csproj" />
   <Project Path="Shared/Shared.csproj" />
+  <Project Path="DepartmentService.Tests/DepartmentService.Tests.csproj" />
 </Solution>
