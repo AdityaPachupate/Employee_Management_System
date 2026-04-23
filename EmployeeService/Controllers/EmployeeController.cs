@@ -1,4 +1,4 @@
-﻿using EmployeeService.Data;
+using EmployeeService.Data;
 using EmployeeService.DTOs;
 using EmployeeService.Models;
 using MassTransit;
@@ -140,6 +140,8 @@ namespace EmployeeService.Controllers
                 return NotFound();
             }
 
+            var oldDeptId = employee.DepartmentId;
+
             employee.Name = dto.Name;
             employee.Email = dto.Email;
             employee.DepartmentId = dto.DepartmentId;
@@ -152,6 +154,7 @@ namespace EmployeeService.Controllers
             {
                 EmployeeId = employee.Id,
                 DepartmentId = employee.DepartmentId,
+                OldDepartmentId = oldDeptId,
                 Salary = employee.Salary,
                 EventType = EmployeeEventType.Updated
             });

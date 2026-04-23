@@ -31,6 +31,7 @@ public class EmployeeEventConsumerTests : IDisposable
     public async Task Consume_ShouldIncrementCount_WhenEmployeeCreated()
     {
         var deptId = 1;
+        _context.Departments.Add(new Department { DepartmentId = deptId, Name = "Test Dept" });
         var stats = new DepartmentStats { DepartmentId = deptId, EmployeeCount = 5 };
         _context.DepartmentStats.Add(stats);
         await _context.SaveChangesAsync();
@@ -49,6 +50,7 @@ public class EmployeeEventConsumerTests : IDisposable
     public async Task Consume_ShouldDecrementCount_WhenEmployeeDeleted()
     {
         var deptId = 2;
+        _context.Departments.Add(new Department { DepartmentId = deptId, Name = "Test Dept" });
         var stats = new DepartmentStats { DepartmentId = deptId, EmployeeCount = 10 };
         _context.DepartmentStats.Add(stats);
         await _context.SaveChangesAsync();
@@ -67,6 +69,9 @@ public class EmployeeEventConsumerTests : IDisposable
     public async Task Consume_ShouldCreateStats_WhenRecordMissing()
     {
         var deptId = 3;
+        _context.Departments.Add(new Department { DepartmentId = deptId, Name = "Test Dept" });
+        await _context.SaveChangesAsync();
+
         var message = new EmployeeEvent { DepartmentId = deptId, EmployeeId = 103, EventType = EmployeeEventType.Created };
         var contextMock = new Mock<ConsumeContext<EmployeeEvent>>();
         contextMock.Setup(c => c.Message).Returns(message);
@@ -82,6 +87,7 @@ public class EmployeeEventConsumerTests : IDisposable
     public async Task Consume_ShouldNotGoBelowZero_WhenDecrementing()
     {
         var deptId = 4;
+        _context.Departments.Add(new Department { DepartmentId = deptId, Name = "Test Dept" });
         var stats = new DepartmentStats { DepartmentId = deptId, EmployeeCount = 0 };
         _context.DepartmentStats.Add(stats);
         await _context.SaveChangesAsync();

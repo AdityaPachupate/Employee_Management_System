@@ -36,7 +36,7 @@ namespace DepartmentService.Infrastructure.Messaging
                     return; // Stop here to avoid a Foreign Key exception
                 }
 
-                // 1. LOOK for the department statistics in our database.
+                // 1. LOOK for the department statistics in our database (New Department).
                 var stats = await _dbContext.DepartmentStats
                     .FirstOrDefaultAsync(s => s.DepartmentId == employeeData.DepartmentId);
 
@@ -53,7 +53,7 @@ namespace DepartmentService.Infrastructure.Messaging
                     _dbContext.DepartmentStats.Add(stats);
                 }
 
-                // 3. UPDATE the count based on what happened (Created, Deleted, etc.)
+                // 3. UPDATE the count based on what happened (Created, Deleted, Updated)
                 if (employeeData.EventType == EmployeeEventType.Created)
                 {
                     stats.EmployeeCount++; // increment count for new employee
@@ -61,6 +61,28 @@ namespace DepartmentService.Infrastructure.Messaging
                 else if (employeeData.EventType == EmployeeEventType.Deleted)
                 {
                     stats.EmployeeCount = Math.Max(0, stats.EmployeeCount - 1); // decrement count
+                }
+                else if (employeeData.EventType == EmployeeEventType.Updated)
+                {
+                    // Check if department has changed
+                    if (employeeData.OldDepartmentId.HasValue && employeeData.OldDepartmentId.Value != employeeData.DepartmentId)
+                    {
+                        _logger.LogInformation(">>> [DEPT CHANGE] Employee {Id} moved from {OldDept} to {NewDept}",
+                            employeeData.EmployeeId, employeeData.OldDepartmentId.Value, employeeData.DepartmentId);
+
+                        // Decrement count for OLD department
+                        var oldStats = await _dbContext.DepartmentStats
+                            .FirstOrDefaultAsync(s => s.DepartmentId == employeeData.OldDepartmentId.Value);
+                        
+                        if (oldStats != null)
+                        {
+                            oldStats.EmployeeCount = Math.Max(0, oldStats.EmployeeCount - 1);
+                            oldStats.LastUpdated = DateTime.UtcNow;
+                        }
+
+                        // Increment count for NEW department
+                        stats.EmployeeCount++;
+                    }
                 }
 
                 // 4. SAVE the changes to the database.
@@ -73,7 +95,6 @@ namespace DepartmentService.Infrastructure.Messaging
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while processing message for Department {DeptId}", employeeData.DepartmentId);
-                // Throwing the error lets the system know it failed (so it can retry later).
                 throw;
             }
         }
