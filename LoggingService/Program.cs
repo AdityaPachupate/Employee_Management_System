@@ -1,5 +1,7 @@
 using LoggingService.Data;
 using Microsoft.EntityFrameworkCore;
+using MassTransit;
+using LoggingService.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<LoggingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<LogEventConsumer>();
+
+    x.UsingInMemory((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

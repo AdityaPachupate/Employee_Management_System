@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using MassTransit;
 
 namespace Shared.Logging
 {
@@ -31,7 +32,7 @@ namespace Shared.Logging
                 var factory = sp.GetRequiredService<IHttpClientFactory>();
                 var client = factory.CreateClient("CentralInternal");
                 var accessor = sp.GetRequiredService<IHttpContextAccessor>();
-                return new CentralLogSender(client, accessor, serviceName);
+                return new CentralLogSender(client, accessor, serviceName, sp);
             });
 
             return builder;

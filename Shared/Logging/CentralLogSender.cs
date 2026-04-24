@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Shared.DTOs;
 using System.Net.Http.Json;
 using Shared.Utilities;
+using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Shared.Logging
 {
@@ -10,12 +12,14 @@ namespace Shared.Logging
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _serviceName;
+        private readonly IServiceProvider _sp;
 
-        public CentralLogSender(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, string serviceName)
+        public CentralLogSender(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, string serviceName, IServiceProvider sp)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
             _serviceName = serviceName;
+            _sp = sp;
         }
 
         public Task SendLogAsync(LogEntryDto log)
@@ -37,26 +41,56 @@ namespace Shared.Logging
                 ?? _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                 ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
 
+            var originalMessage = log.Message;
+
+            // 1. Send via HTTP
             try
             {
-                // Send in the background so the API stays fast
                 _ = Task.Run(async () => {
                     try {
-                        var response = await _httpClient.PostAsJsonAsync("logs", log);
+                        var httpLog = CloneLog(log);
+                        httpLog.Message = "HTTP: " + originalMessage;
+
+                        var response = await _httpClient.PostAsJsonAsync("logs", httpLog);
                         if (!response.IsSuccessStatusCode) {
-                             Console.WriteLine($"[LOG ERROR] Logging Service returned {response.StatusCode} for: {log.Message}");
+                             Console.WriteLine($"[LOG ERROR] HTTP Logging failed for: {httpLog.Message}");
                         }
-                    } catch (Exception ex) {
-                         Console.WriteLine($"[LOG FALLBACK] Could not reach Logging Service. Log: {log.Message}. Error: {ex.Message}");
-                    }
+                    } catch { }
                 });
-            }
-            catch (Exception ex)
+            } catch { }
+
+            // 2. Send via RabbitMQ
+            try
             {
-                Console.WriteLine($"[LOG FALLBACK] Internal error in Log Sender: {ex.Message}");
-            }
+                // Resolve IBus lazily to avoid circular dependency
+                var bus = _sp.GetService<IBus>();
+                if (bus != null)
+                {
+                    _ = Task.Run(async () => {
+                        try {
+                            var rabbitLog = CloneLog(log);
+                            rabbitLog.Message = "RabbitMQ: " + originalMessage;
+                            await bus.Publish(rabbitLog);
+                        } catch { }
+                    });
+                }
+            } catch { }
 
             return Task.CompletedTask;
+        }
+
+        private LogEntryDto CloneLog(LogEntryDto source)
+        {
+            return new LogEntryDto
+            {
+                ServiceName = source.ServiceName,
+                CorrelationId = source.CorrelationId,
+                LogLevel = source.LogLevel,
+                Message = source.Message,
+                Exception = source.Exception,
+                UserName = source.UserName,
+                Timestamp = source.Timestamp
+            };
         }
 
         public Task SendLogAsync(string message, string logLevel = "Information", string? exception = null)

@@ -47,8 +47,9 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 // This registers the 'Bus' that handles sending and receiving messages.
 builder.Services.AddMassTransit(x =>
 {
-    // Register our Consumer so the system knows what to do when a message arrives.
+    // Register our Consumers so the system knows what to do when a message arrives.
     x.AddConsumer<EmployeeEventConsumer>();
+    x.AddConsumer<LocalLogConsumer>();
 
     // For local development in Visual Studio, we use 'InMemory' mode.
     // This allows messages to flow WITHOUT needing to install RabbitMQ or Docker!

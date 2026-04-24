@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 using Shared.DTOs;
 using System.Net.Http.Json;
 using Shared.Utilities;
+using MassTransit;
 
 namespace Shared.Logging
 {
-
     public class CentralLogger : ILogger
     {
         private static readonly HttpClient Http = new(); // One courier for the whole app
@@ -15,21 +15,21 @@ namespace Shared.Logging
         private readonly IHttpContextAccessor _access;
         private readonly string _service;
         private readonly string _url;
+        private readonly IServiceProvider _sp;
 
-        public CentralLogger(string category, IHttpContextAccessor access, string service, string url)
+        public CentralLogger(string category, IHttpContextAccessor access, string service, string url, IServiceProvider sp)
         {
             _category = category;
             _access = access;
             _service = service;
             _url = url;
+            _sp = sp;
         }
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
-        // Log Application Information, but only Warning/Error for System/Infra logs
         public bool IsEnabled(LogLevel level)
         {
-            // Suppress Information logs for internal infrastructure to keep the DB clean
             if (_category.StartsWith("Microsoft") || 
                 _category.StartsWith("MassTransit") || 
                 _category.StartsWith("System"))
@@ -40,17 +40,17 @@ namespace Shared.Logging
             return level >= LogLevel.Information;
         }
 
-
-
         public void Log<TState>(LogLevel level, EventId id, TState state, Exception? ex, Func<TState, Exception?, string> fmt)
         {
             if (!IsEnabled(level)) return;
+
+            var rawMsg = fmt(state, ex);
+            var fullMsg = $"[{_category}] {rawMsg}";
 
             var log = new LogEntryDto
             {
                 ServiceName = _service,
                 LogLevel = level.ToString(),
-                Message = $"[{_category}] {fmt(state, ex)}",
                 Exception = ex?.ToString(),
                 CorrelationId = _access.HttpContext?.Request.Headers["X-Correlation-Id"].ToString(),
                 UserName = _access.HttpContext?.User?.Identity?.Name 
@@ -59,26 +59,63 @@ namespace Shared.Logging
                 Timestamp = TimeHelper.GetIstNow()
             };
 
-            // Send in the background without blocking the app
-            _ = Task.Run(() => Http.PostAsJsonAsync($"{_url.TrimEnd('/')}/logs", log));
+            // 1. HTTP Path
+            _ = Task.Run(async () => {
+                try {
+                    var httpLog = CloneLog(log);
+                    httpLog.Message = "HTTP: " + fullMsg;
+                    await Http.PostAsJsonAsync($"{_url.TrimEnd('/')}/logs", httpLog);
+                } catch { }
+            });
+
+            // 2. RabbitMQ Path
+            if (!_category.StartsWith("MassTransit")) // Extra safety
+            {
+                _ = Task.Run(async () => {
+                    try {
+                        var bus = _sp.GetService<IBus>();
+                        if (bus != null)
+                        {
+                            var rabbitLog = CloneLog(log);
+                            rabbitLog.Message = "RabbitMQ: " + fullMsg;
+                            await bus.Publish(rabbitLog);
+                        }
+                    } catch { }
+                });
+            }
+        }
+
+        private LogEntryDto CloneLog(LogEntryDto source)
+        {
+            return new LogEntryDto
+            {
+                ServiceName = source.ServiceName,
+                CorrelationId = source.CorrelationId,
+                LogLevel = source.LogLevel,
+                Message = source.Message,
+                Exception = source.Exception,
+                UserName = source.UserName,
+                Timestamp = source.Timestamp
+            };
         }
     }
-
 
     public class CentralLoggerProvider : ILoggerProvider
     {
         private readonly IHttpContextAccessor _access;
         private readonly string _service;
         private readonly string _url;
+        private readonly IServiceProvider _sp;
 
-        public CentralLoggerProvider(IHttpContextAccessor access, string service, string url)
+        public CentralLoggerProvider(IHttpContextAccessor access, string service, string url, IServiceProvider sp)
         {
             _access = access;
             _service = service;
             _url = url;
+            _sp = sp;
         }
 
-        public ILogger CreateLogger(string category) => new CentralLogger(category, _access, _service, _url);
+        public ILogger CreateLogger(string category) => new CentralLogger(category, _access, _service, _url, _sp);
         public void Dispose() { }
     }
 
@@ -88,7 +125,10 @@ namespace Shared.Logging
         {
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton<ILoggerProvider>(sp =>
-                new CentralLoggerProvider(sp.GetRequiredService<IHttpContextAccessor>(), serviceName, loggingUrl));
+            {
+                var access = sp.GetRequiredService<IHttpContextAccessor>();
+                return new CentralLoggerProvider(access, serviceName, loggingUrl, sp);
+            });
             return builder;
         }
     }
