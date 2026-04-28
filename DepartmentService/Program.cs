@@ -25,6 +25,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DepartmentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<DepartmentDbContext>();
+
 // Logging setup (Plug & Play)
 builder.AddCentralLogging("DepartmentService");
 builder.Logging.AddCentralLogger(
@@ -127,6 +130,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
 
